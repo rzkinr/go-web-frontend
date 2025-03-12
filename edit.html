@@ -45,12 +45,13 @@
 <body>
     <div class="form-container">
         <h2>Edit Category</h2>
-        <form id="addCategoryForm">
+        <form id="editCategoryForm">
+            <input type="hidden" id="categoryId">
             <div class="form-group">
                 <label for="categoryName">Category Name:</label>
                 <input type="text" id="categoryName" required>
             </div>
-            <button type="submit" class="btn btn-primary">Add</button>
+            <button type="submit" class="btn btn-primary">Edit</button>
         </form>
     </div>
 
@@ -73,7 +74,7 @@
                 }
 
                 const data = await response.json();
-                console.log(data);
+                document.getElementById('categoryId').value = data.id;
                 document.getElementById('categoryName').value = data.name;
 
             } catch (error) {
@@ -82,6 +83,36 @@
         };
 
         window.onload = fetchData;
+
+        document.getElementById('editCategoryForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const categoryId = document.getElementById('categoryId').value;
+            const categoryName = document.getElementById('categoryName').value;
+            const token = localStorage.getItem('token');
+
+            try {
+                const response = await fetch('http://localhost:3306/categories/edit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        id: categoryId,
+                        name: categoryName 
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to edit category');
+                }
+
+                // Redirect to dashboard after successful addition
+                window.location.href = '/dashboard.html';
+            } catch (error) {
+                console.error('Error adding category:', error);
+            }
+        });
     </script>
 </body>
 </html>
